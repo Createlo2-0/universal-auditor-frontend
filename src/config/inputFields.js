@@ -54,12 +54,19 @@ const inputFields = [
     name: "website",
     placeholder: "Website URL",
     icon: IoIosLink,
-    type: "url",
+    type: "text",
     validation: {
-      // required: "Website URL is required", // Validation: Field is required
       pattern: {
-        value: /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\/\S*)?$/, // Regex for a valid URL
-        message: "Enter a valid website URL", // Error message for invalid input
+        value: new RegExp(
+          "^(https?:\\/\\/)?(" +                               // optional protocol
+          "localhost|" +                                       // localhost
+          "((\\d{1,3}\\.){3}\\d{1,3})|" +                      // IPv4
+          "([\\p{L}0-9-]+\\.)+[\\p{L}]{2,}" +                  // international domain
+          ")(:\\d{1,5})?" +                                    // optional port
+          "(\\/[^\\s]*)?$",                                    // optional path
+          "u"                                                  // unicode flag
+        ),
+        message: "Enter a valid website URL",
       },
     },
   },
@@ -67,15 +74,15 @@ const inputFields = [
   // Instagram Profile URL
   {
     name: "instagram",
-    placeholder: "Instagram Profile Name or URL",
+    placeholder: "Instagram Username",
     icon: IoLogoInstagram,
     type: "text",
     required: "Instagram profile name or url is required",
     validation: {
-      required: "Instagram username is required", // Required validation
+      required: "Instagram username is required",
       pattern: {
-        value: /^[a-zA-Z0-9._-]+$/, // Regex for a valid Instagram username
-        message: "Enter a valid Instagram username (letters, numbers, dots, underscores, or hyphens only)", // Error message
+        value: /^[a-zA-Z0-9._]{1,30}$/, // Max length = 30
+        message: "Enter a valid Instagram username (only letters, numbers, underscores, and dots)",
       },
     },
   },
@@ -83,14 +90,14 @@ const inputFields = [
   // Facebook Profile URL
   {
     name: "facebook",
-    placeholder: "Facebook Profile Name or URL",
+    placeholder: "Facebook Username",
     icon: FaFacebook,
     type: "text",
     validation: {
-      required: "Facebook username is required", // Required validation
+      required: "Facebook username is required",
       pattern: {
-        value: /^[a-zA-Z0-9._-]+$/, // Regex for a valid Facebook username
-        message: "Enter a valid Facebook username (letters, numbers, dots, underscores, or hyphens only)", // Error message
+        value: /^[\p{L}0-9._\- ]+$/u, // Unicode friendly
+        message: "Enter a valid Facebook username (letters, numbers, dots, dashes, underscores, and spaces)",
       },
     },
   },

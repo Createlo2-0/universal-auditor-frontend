@@ -9,8 +9,34 @@ const AuditForm = ({ onClose }) => {
 
   // Handle form submission
   const onSubmit = async (data) => {
-    console.log("Form Data:", data); // Log form data for debugging
-    toast('Form submitted successfully'); // Show success toast notification
+    try {
+      console.log("Form Data:", data); // Log form data for debugging
+  
+      // Generate a timestamp for the file name
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); // Format: YYYY-MM-DDTHH-MM-SS
+      const filename = `data-${timestamp}.json`;
+  
+      // Convert the data to a JSON Blob
+      const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(jsonBlob);
+      link.download = filename;
+  
+      // Programmatically click the link to trigger the download
+      document.body.appendChild(link);
+      link.click();
+  
+      // Clean up the temporary link
+      document.body.removeChild(link);
+  
+      toast('Form submitted successfully'); // Show success toast notification
+    } catch (error) {
+      console.error('Error saving data:', error);
+      toast.error('An error occurred while saving the data'); // Show error toast notification
+    }
+  
     onClose(); // Close the form popup
   };
 
@@ -73,7 +99,7 @@ const AuditForm = ({ onClose }) => {
 
           {/* Footer */}
           <p className="text-xs sm:text-sm text-gray-400 mt-4">
-            Powered by <span className="text-white">Gemini + Meta AI</span> | Delivered by <span className="text-white">Createlo</span>
+            Powered by <span className="text-white">Gemini AI</span> | Delivered by <span className="text-white">Createlo</span>
           </p>
         </div>
       </div>
