@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* Custom scrollbar for the form */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 3px; /* For Firefox: thin scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #00d3f3;
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to bottom, #ff299c, #8222c2, #4822dd);
+}
