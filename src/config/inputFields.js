@@ -2,9 +2,9 @@
 import { IoIosLink } from "react-icons/io";
 import { IoLogoInstagram } from "react-icons/io5";
 import { FaFacebook, FaUser } from "react-icons/fa";
-import { RiLinkedinFill } from "react-icons/ri";
 import { MdOutlineMail } from "react-icons/md";
 import { IoMdCall } from "react-icons/io";
+import { MdCategory } from "react-icons/md";
 
 // Array of input field configurations
 const inputFields = [
@@ -99,6 +99,27 @@ const inputFields = [
         value: /^[\p{L}0-9._\- ]+$/u, // Unicode friendly
         message: "Enter a valid Facebook username (letters, numbers, dots, dashes, underscores, and spaces)",
       },
+    },
+  },
+  {
+    name: "businessCategory",
+    placeholder: "Select Business Category",
+    icon:MdCategory,
+    type: "select",
+    options: [
+      "Real Estate & Builders",
+      "Local Shops & D2C Brands",
+      "Healthcare & Clinics",
+      "Education & Coaching Institutes",
+      "Salons & Spas",
+      "Restaurants, Cafes & Cloud Kitchens",
+      "Jewellery & Fashion Boutiques",
+      "Fitness, Gyms & Yoga Studios",
+      "Event Planners & Wedding Vendors",
+      "Interior Designers & Architects",
+    ],
+    validation: {
+      required: "Business category is required",
     },
   },
 ];
