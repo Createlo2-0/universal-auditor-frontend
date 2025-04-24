@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://Createlo2-0.github.io/universal-auditor-frontend",
+  "homepage": "https://audit.createlo.in",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
