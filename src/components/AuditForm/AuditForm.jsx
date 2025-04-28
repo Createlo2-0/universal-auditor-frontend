@@ -5,41 +5,39 @@ import { toast } from 'react-hot-toast';
 
 const AuditForm = ({ onClose }) => {
   const { register, handleSubmit, setValue, formState: { errors } } = useForm();
-  const [loading, setLoading] = useState(false);  // Loading state for submit button
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data) => {
     try {
-      setLoading(true); // Set loading to true when submitting
+      setLoading(true);
+      console.log("Form Data:", data);
 
-      console.log("Form Data:", data); // Log form data for debugging
-
-      // Send data to Flask backend
       const response = await fetch('https://backend-testing-qgcx.onrender.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
+        credentials: 'include' // Important for session cookies
       });
 
-      const responseData = await response.json(); // Parse response JSON
+      const responseData = await response.json();
 
       if (response.ok) {
         toast.success('Form submitted successfully');
-        
-        // Redirect to your result page URL (Replace with your result page URL)
-        window.location.href = 'https://backend-testing-qgcx.onrender.com/result'; // Your result URL
+        // Use the redirect URL from the response
+        window.location.href = `https://backend-testing-qgcx.onrender.com${responseData.redirect_url}`;
       } else {
         toast.error(responseData.error || 'Error submitting form');
       }
     } catch (error) {
       console.error('Error saving data:', error);
-      toast.error('An error occurred while saving the data'); // Show error toast notification
+      toast.error('An error occurred while saving the data');
     } finally {
-      setLoading(false); // Reset loading after completion
+      setLoading(false);
     }
 
-    onClose();  // Close the form modal after submission
+    onClose();
   };
 
   return (
@@ -61,14 +59,11 @@ const AuditForm = ({ onClose }) => {
 
           <div className="w-full p-[2px] rounded-2xl bg-[conic-gradient(at_top_left,_cyan,_blue,_pink,_purple)] border border-[#ffffff80] shadow-[0_0_18px_rgba(0,255,255,0.25),inset_0_0_10px_rgba(255,0,255,1)] overflow-hidden">
             <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-[#07071f] px-4 sm:px-6 py-3 rounded-2xl max-h-[400px] overflow-y-auto custom-scrollbar">
-              {/* Dynamically render input fields */}
               {inputFields.map(({ name, placeholder, icon: Icon, type, validation, options }) => (
                 <div key={name} className="flex flex-col bg-[#0f172a] border border-[#121960] rounded-lg px-3 py-2 my-3 shadow-sm focus-within:ring-1 focus-within:ring-cyan-400">
-                  {/* Error message */}
                   {errors[name] && (
                     <p className="text-red-500 text-xs mb-1">{errors[name]?.message}</p>
                   )}
-                  {/* Input field or dropdown */}
                   {type === "select" ? (
                     <div>
                       <label
@@ -83,10 +78,10 @@ const AuditForm = ({ onClose }) => {
                           ...validation,
                           onChange: (e) => {
                             const selectedValue = e.target.value;
-                            setValue("categoryHint", selectedValue); // Add to form payload
+                            setValue("categoryHint", selectedValue);
                           },
                         })}
-                        defaultValue="" // Use defaultValue instead of selected
+                        defaultValue=""
                         className="bg-[#1e293b] w-full text-white border border-[#121960] rounded-md px-2 py-2 text-sm sm:text-base focus:ring-2 focus:ring-cyan-400 focus:outline-none"
                       >
                         <option value="" disabled>
@@ -115,21 +110,19 @@ const AuditForm = ({ onClose }) => {
 
               <input type="hidden" {...register("categoryHint")} />
 
-              {/* Submit button */}
               <div className="flex justify-center">
                 <button
                   type="submit"
                   className="w-[70%] sm:w-[50%] mt-3 py-2 bg-gradient-to-r from-[#4822dd] via-[#8222c2] to-[#ff299c]
                   text-white text-sm sm:text-base rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-pink-100/10 transition-all shadow-neon"
-                  disabled={loading}  // Disable button when loading
+                  disabled={loading}
                 >
-                  {loading ? 'Submitting...' : 'Run Free Audit'}  {/* Button text changes based on loading state */}
+                  {loading ? 'Submitting...' : 'Run Free Audit'}
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Footer */}
           <p className="text-xs sm:text-sm text-gray-400 mt-4">
             Powered by <span className="text-white">Gemini AI</span> and Createlo
           </p>
