@@ -12,26 +12,21 @@ const AuditForm = ({ onClose }) => {
     try {
       console.log("Form Data:", data); // Log form data for debugging
 
-      // Generate a timestamp for the file name
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); // Format: YYYY-MM-DDTHH-MM-SS
-      const filename = `data-${timestamp}.json`;
+      // Send data to Flask backend via POST request
+      const response = await fetch('https://backend-testing-qgcx.onrender.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data), // Send form data as JSON
+      });
 
-      // Convert the data to a JSON Blob
-      const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-
-      // Create a temporary link element
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(jsonBlob);
-      link.download = filename;
-
-      // Programmatically click the link to trigger the download
-      document.body.appendChild(link);
-      link.click();
-
-      // Clean up the temporary link
-      document.body.removeChild(link);
-
-      toast('Form submitted successfully'); // Show success toast notification
+      if (response.ok) {
+        toast('Form submitted successfully'); // Show success toast notification
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Error submitting form'); // Show error toast notification
+      }
     } catch (error) {
       console.error('Error saving data:', error);
       toast.error('An error occurred while saving the data'); // Show error toast notification
@@ -42,7 +37,6 @@ const AuditForm = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 px-4 sm:px-6">
-
       <div className="relative w-full max-w-md p-4 sm:p-6 rounded-2xl bg-[#07071f] backdrop-blur-3xl shadow-lg">
         <button
           onClick={onClose}
@@ -51,7 +45,6 @@ const AuditForm = ({ onClose }) => {
           &times;
         </button>
 
-
         <div className="flex flex-col items-center justify-center text-white font-sans">
           <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400 drop-shadow-[0_0_35px_rgba(0,255,255,0.7)]">
             CREATE<span className="text-pink-500">LO</span>
@@ -59,12 +52,10 @@ const AuditForm = ({ onClose }) => {
           <h2 className="text-lg sm:text-xl text-[#367df8] mt-1 drop-shadow-[0_0_8px_#0ff]">User Input Form</h2>
           <h3 className="text-2xl sm:text-3xl font-semibold mb-2 drop-shadow-[0_0_8px_#0ff]">AI Audit Entry</h3>
 
-
           <div className="w-full p-[2px] rounded-2xl bg-[conic-gradient(at_top_left,_cyan,_blue,_pink,_purple)] border border-[#ffffff80]
           shadow-[0_0_18px_rgba(0,255,255,0.25),inset_0_0_10px_rgba(255,0,255,1)] overflow-hidden">
             <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-[#07071f] px-4 sm:px-6 py-3 rounded-2xl max-h-[400px] overflow-y-auto custom-scrollbar">
               {/* Dynamically render input fields */}
-
               {inputFields.map(({ name, placeholder, icon: Icon, type, validation, options }) => (
                 <div key={name} className="flex flex-col bg-[#0f172a] border border-[#121960] rounded-lg px-3 py-2 my-3 shadow-sm focus-within:ring-1 focus-within:ring-cyan-400">
                   {/* Error message */}
