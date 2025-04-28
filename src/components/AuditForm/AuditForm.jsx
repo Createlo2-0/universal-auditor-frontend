@@ -4,32 +4,37 @@ import inputFields from "../../config/inputFields.js";
 import { toast } from 'react-hot-toast';
 
 const AuditForm = ({ onClose }) => {
-  // Initialize React Hook Form
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm(); // Added `setValue`
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
 
-  // Handle form submission
   const onSubmit = async (data) => {
     try {
-      console.log("Form Data:", data); // Log form data for debugging
+      console.log("Form Data:", data);
 
-      // Send data to Flask backend via POST request
-      const response = await fetch('https://backend-testing-qgcx.onrender.com', {
+      // Corrected POST endpoint
+      const response = await fetch('https://backend-testing-qgcx.onrender.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data), // Send form data as JSON
+        credentials: 'include',  // Important for using session
+        body: JSON.stringify(data),
       });
 
+      const responseData = await response.json();
+
       if (response.ok) {
-        toast('Form submitted successfully'); // Show success toast notification
+        toast.success('Form submitted successfully');
+
+        if (responseData.redirect_url) {
+          // If backend sends a redirect URL, navigate the user
+          window.location.href = 'https://backend-testing-qgcx.onrender.com' + responseData.redirect_url;
+        }
       } else {
-        const errorData = await response.json();
-        toast.error(errorData.error || 'Error submitting form'); // Show error toast notification
+        toast.error(responseData.error || 'Error submitting form');
       }
     } catch (error) {
       console.error('Error saving data:', error);
-      toast.error('An error occurred while saving the data'); // Show error toast notification
+      toast.error('An error occurred while saving the data');
     }
 
     onClose();
@@ -55,20 +60,15 @@ const AuditForm = ({ onClose }) => {
           <div className="w-full p-[2px] rounded-2xl bg-[conic-gradient(at_top_left,_cyan,_blue,_pink,_purple)] border border-[#ffffff80]
           shadow-[0_0_18px_rgba(0,255,255,0.25),inset_0_0_10px_rgba(255,0,255,1)] overflow-hidden">
             <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-[#07071f] px-4 sm:px-6 py-3 rounded-2xl max-h-[400px] overflow-y-auto custom-scrollbar">
-              {/* Dynamically render input fields */}
+
               {inputFields.map(({ name, placeholder, icon: Icon, type, validation, options }) => (
                 <div key={name} className="flex flex-col bg-[#0f172a] border border-[#121960] rounded-lg px-3 py-2 my-3 shadow-sm focus-within:ring-1 focus-within:ring-cyan-400">
-                  {/* Error message */}
                   {errors[name] && (
                     <p className="text-red-500 text-xs mb-1">{errors[name]?.message}</p>
                   )}
-                  {/* Input field or dropdown */}
                   {type === "select" ? (
                     <div>
-                      <label
-                        htmlFor={name}
-                        className="text-white text-sm font-medium mb-2 block pl-1"
-                      >
+                      <label htmlFor={name} className="text-white text-sm font-medium mb-2 block pl-1">
                         {placeholder}
                       </label>
                       <select
@@ -77,10 +77,10 @@ const AuditForm = ({ onClose }) => {
                           ...validation,
                           onChange: (e) => {
                             const selectedValue = e.target.value;
-                            setValue("categoryHint", selectedValue); // Add to form payload
+                            setValue("categoryHint", selectedValue);
                           },
                         })}
-                        defaultValue="" // Use defaultValue instead of selected
+                        defaultValue=""
                         className="bg-[#1e293b] w-full text-white border border-[#121960] rounded-md px-2 py-2 text-sm sm:text-base focus:ring-2 focus:ring-cyan-400 focus:outline-none"
                       >
                         <option value="" disabled>
@@ -109,7 +109,6 @@ const AuditForm = ({ onClose }) => {
 
               <input type="hidden" {...register("categoryHint")} />
 
-              {/* Submit button */}
               <div className="flex justify-center">
                 <button
                   type="submit"
@@ -122,7 +121,6 @@ const AuditForm = ({ onClose }) => {
             </form>
           </div>
 
-          {/* Footer */}
           <p className="text-xs sm:text-sm text-gray-400 mt-4">
             Powered by <span className="text-white">Gemini AI</span> | Delivered by <span className="text-white">Createlo</span>
           </p>
