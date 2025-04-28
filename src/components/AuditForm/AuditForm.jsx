@@ -2,43 +2,35 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import inputFields from "../../config/inputFields.js";
 import { toast } from 'react-hot-toast';
+import { submitFormData } from '../../api/submitform';
 
 const AuditForm = ({ onClose }) => {
   // Initialize React Hook Form
   const { register, handleSubmit, setValue, formState: { errors } } = useForm(); // Added `setValue`
 
   // Handle form submission
-  const onSubmit = async (data) => {
-    try {
-      console.log("Form Data:", data); // Log form data for debugging
+ const onSubmit = async (data) => {
+  try {
+    console.log("Form Data:", data); // For debugging
 
-      // Generate a timestamp for the file name
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-'); // Format: YYYY-MM-DDTHH-MM-SS
-      const filename = `data-${timestamp}.json`;
+    const response = await submitFormData(data); // ✅ Send to backend
 
-      // Convert the data to a JSON Blob
-      const jsonBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    console.log("Server Response:", response); // Check backend response
 
-      // Create a temporary link element
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(jsonBlob);
-      link.download = filename;
-
-      // Programmatically click the link to trigger the download
-      document.body.appendChild(link);
-      link.click();
-
-      // Clean up the temporary link
-      document.body.removeChild(link);
-
-      toast('Form submitted successfully'); // Show success toast notification
-    } catch (error) {
-      console.error('Error saving data:', error);
-      toast.error('An error occurred while saving the data'); // Show error toast notification
+    if (response.status === 'success') {
+      toast.success('Audit completed successfully! 🎯');
+      // You can also redirect or show result here if needed
+    } else {
+      toast.error('Audit failed. Please try again.');
     }
 
-    onClose();
-  };
+  } catch (error) {
+    console.error('Error submitting form:', error);
+    toast.error('Error submitting form. Please try again later.');
+  }
+
+  onClose(); // Close form after submission
+};
 
   return (
     <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 px-4 sm:px-6">
