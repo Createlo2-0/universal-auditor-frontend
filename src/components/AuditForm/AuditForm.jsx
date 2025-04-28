@@ -12,6 +12,9 @@ const AuditForm = ({ onClose }) => {
       setLoading(true);
       console.log("Submitting:", formData);
 
+      // Show connection test toast
+      toast.loading('Connecting to backend...');
+
       const response = await fetch('https://backend-testing-qgcx.onrender.com/submit', {
         method: 'POST',
         headers: {
@@ -34,19 +37,27 @@ const AuditForm = ({ onClose }) => {
       }
 
       const data = await response.json();
-      toast.success('Analysis complete! Redirecting...');
+      toast.success('Backend connection successful! Processing results...');
+      
+      // Store report data in sessionStorage for the result page
+      sessionStorage.setItem('reportData', JSON.stringify(data.report_data));
       
       // Open result in same tab (maintaining session context)
-      window.location.href = `https://backend-testing-qgcx.onrender.com${data.redirect_url}`;
+      window.location.href = `https://backend-testing-qgcx.onrender.com/result`;
       
     } catch (error) {
       console.error('Submission error:', error);
-      toast.error(error.message || 'Failed to submit form');
+      toast.error(error.message || 'Failed to connect to backend');
     } finally {
       setLoading(false);
       onClose();
     }
   };
+
+  // ... rest of your component code remains the same ...
+};
+
+export default AuditForm;
 
   return (
     <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 px-4 sm:px-6">
