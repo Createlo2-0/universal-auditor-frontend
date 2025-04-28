@@ -4,11 +4,9 @@ import inputFields from "../../config/inputFields.js";
 import { toast } from 'react-hot-toast';
 
 const AuditForm = ({ onClose }) => {
-  // Initialize React Hook Form
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm(); // Added `setValue`
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
   const [loading, setLoading] = useState(false);  // Loading state for submit button
 
-  // Handle form submission
   const onSubmit = async (data) => {
     try {
       setLoading(true); // Set loading to true when submitting
@@ -133,7 +131,7 @@ const AuditForm = ({ onClose }) => {
 
           {/* Footer */}
           <p className="text-xs sm:text-sm text-gray-400 mt-4">
-            Powered by <span className="text-white">Gemini AI</span> | Delivered by <span className="text-white">Createlo</span>
+            Powered by <span className="text-white">Gemini AI</span> and Createlo
           </p>
         </div>
       </div>
