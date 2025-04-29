@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const apiClient = axios.create({
   baseURL: 'https://backend-testing-qgcx.onrender.com', 
-  withCredentials: true, 
   headers: {
     'Content-Type': 'application/json',
   },
