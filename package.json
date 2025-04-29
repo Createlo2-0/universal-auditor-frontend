@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://Createlo2-0.github.io/universal-auditor-frontend",
+  "proxy":"https://backend-testing-qgcx.onrender.com",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,7 +16,11 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
     "axios": "^1.8.4",
+    "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.10.3",
+    "jspdf": "^3.0.1",
     "motion": "^12.9.2",
+    "postcss-color-function": "^4.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.55.0",

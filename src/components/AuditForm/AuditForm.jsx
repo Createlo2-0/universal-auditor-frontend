@@ -2,35 +2,39 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import inputFields from "../../config/inputFields.js";
 import { toast } from 'react-hot-toast';
-import { submitFormData } from '../../api/submitform';
+import { submitFormData } from '../../api/submitAudit.js';
+import { useNavigate } from 'react-router-dom';
 
 const AuditForm = ({ onClose }) => {
   const { register, handleSubmit, setValue, formState: { errors } } = useForm();
   const navigate = useNavigate();
 
   // Handle form submission
- const onSubmit = async (data) => {
-  try {
-    console.log("Form Data:", data); // For debugging
+  const onSubmit = async (data) => {
+    try {
+      
+      console.log("Form Data:", data);  
 
-    const response = await submitFormData(data); // ✅ Send to backend
+      const response = await submitFormData(data);
 
-    console.log("Server Response:", response); // Check backend response
+      console.log("Server Response:", response);
 
-    if (response.status === 'success') {
-      toast.success('Audit completed successfully! 🎯');
-      // You can also redirect or show result here if needed
-    } else {
-      toast.error('Audit failed. Please try again.');
+      if (response.status === 'success') {
+        toast.success('Audit completed successfully! 🎯');
+        navigate('/business-summary');
+      } else {
+        toast.error('Audit failed. Please try again.');
+      }
+     
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      localStorage.setItem('isDataSubmitted', 'true');
+      navigate('/business-summary');
+      toast.error('Error submitting form. Please try again later.');
     }
 
-  } catch (error) {
-    console.error('Error submitting form:', error);
-    toast.error('Error submitting form. Please try again later.');
-  }
-
-  onClose(); // Close form after submission
-};
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center z-50 px-4 sm:px-6">

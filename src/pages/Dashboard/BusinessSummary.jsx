@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FiDownload } from "react-icons/fi";
+import { jsPDF } from "jspdf";
 
 const reportData = {
   client: "BramhaCorp",
@@ -35,12 +36,170 @@ const reportData = {
   ],
 };
 
-const handleButtonClick = () => {
-  console.log("Button clicked");
-};
-
 const BusinessSummary = () => {
   const [loading, setLoading] = useState(true);
+
+  const generatePDF = () => {
+    const doc = new jsPDF("p", "mm", "a4");
+
+    const borderColor = "#1f2e46";
+    const titleColor = "#38bdf8";
+    const subtitleColor = "#0ea5e9";
+    const textColor = "#ffffff";
+
+    // Draw page background
+    doc.setFillColor(5, 15, 26); // #050f1a
+    doc.rect(0, 0, 210, 297, "F");
+
+    // Container
+    doc.setFillColor(12, 19, 35); // #0c1323
+    doc.roundedRect(10, 10, 190, 277, 4, 4, "F");
+
+    let y = 20;
+
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(subtitleColor);
+    doc.text("CREATELO", 15, y);
+
+    y += 8;
+    doc.setFontSize(14);
+    doc.setTextColor(titleColor);
+    doc.text("AUDITOR REPORT SUMMARY", 15, y);
+
+    y += 8;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(textColor);
+    doc.text("UNIVERSAL AUDITOR AI", 15, y);
+
+    y += 6;
+    doc.text(`Client: ${reportData.client || "N/A"}`, 15, y);
+
+    const sectionBox = (title, content, offsetY) => {
+      doc.setFillColor(14, 23, 47); // box background
+      doc.setDrawColor(borderColor);
+      doc.roundedRect(15, offsetY, 180, 20 + doc.getTextDimensions(content).h, 3, 3, "F");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(titleColor);
+      doc.text(title, 20, offsetY + 7);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.setTextColor(textColor);
+      doc.text(content, 20, offsetY + 14, { maxWidth: 170 });
+
+      return offsetY + 20 + doc.getTextDimensions(content).h + 5;
+    };
+
+    // Sections
+    y = sectionBox("COMPANY OVERVIEW", reportData.businessoverview || "No overview provided.", y + 10);
+    y = sectionBox("INSTAGRAM OVERVIEW", reportData.instagramSummary || "N/A", y);
+    y = sectionBox("FACEBOOK OVERVIEW", reportData.facebookSummary || "N/A", y);
+
+    // Draw circular score
+    const centerX = 105;
+    const centerY = y + 30;
+    const radius = 20;
+    const score = Number(reportData.overallScore || 0);
+    const angle = (Math.PI * 2 * score) / 100;
+
+    // Draw background circle
+    doc.setDrawColor(60);
+    doc.setLineWidth(3);
+    doc.circle(centerX, centerY, radius, "S");
+
+    // Draw progress arc (manually calculate points)
+    const startAngle = -Math.PI / 2;
+    const endAngle = startAngle + angle;
+    const steps = 100; // Number of steps for smoothness
+    const stepAngle = (endAngle - startAngle) / steps;
+
+    doc.setDrawColor("#38bdf8");
+    doc.setLineWidth(3);
+
+    for (let i = 0; i < steps; i++) {
+      const x1 = centerX + radius * Math.cos(startAngle + i * stepAngle);
+      const y1 = centerY + radius * Math.sin(startAngle + i * stepAngle);
+      const x2 = centerX + radius * Math.cos(startAngle + (i + 1) * stepAngle);
+      const y2 = centerY + radius * Math.sin(startAngle + (i + 1) * stepAngle);
+
+      doc.line(x1, y1, x2, y2);
+    }
+
+    // Add score text
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(titleColor);
+    doc.text(`${score}%`, centerX, centerY + 3, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(textColor);
+    doc.text("Out of 100", centerX, centerY + 10, { align: "center" });
+
+    y = centerY + 25;
+
+    // Score boxes
+    doc.setFillColor(14, 23, 47);
+    doc.roundedRect(30, y, 60, 20, 3, 3, "F");
+    doc.roundedRect(120, y, 60, 20, 3, 3, "F");
+
+    doc.setFontSize(11);
+    doc.setTextColor(titleColor);
+    doc.text("Instagram", 35, y + 7);
+    doc.text("Facebook", 125, y + 7);
+
+    doc.setFontSize(14);
+    doc.setTextColor(textColor);
+    doc.text(`${reportData.instagramScore || "N/A"}`, 35, y + 15);
+    doc.text(`${reportData.facebookScore || "N/A"}`, 125, y + 15);
+
+    y += 35;
+
+    const listSection = (title, items, startY) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(titleColor);
+      doc.text(title, 15, startY);
+
+      doc.setDrawColor(borderColor);
+      doc.line(15, startY + 2, 195, startY + 2);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.setTextColor(textColor);
+
+      const itemList = items || ["No data provided."];
+      let yPos = startY + 8;
+      itemList.forEach((text, idx) => {
+        doc.text(`• ${text}`, 20, yPos);
+        yPos += 6;
+      });
+
+      return yPos + 5;
+    };
+
+    y = listSection("SUMMARY", [reportData.businesssummary || "N/A"], y);
+    y = listSection("INSIGHTS", reportData.insights, y);
+    y = listSection("TIPS", reportData.tips, y);
+
+    // Footer
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(148, 163, 184);
+    doc.line(60, 285, 150, 285);
+    doc.text("Powered by Universal Auditor AI | Delivered by Createlo", 105, 290, {
+      align: "center",
+    });
+
+    doc.save("Audit_Report_Styled.pdf");
+
+  };
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -74,7 +233,7 @@ const BusinessSummary = () => {
           </h1>
 
           <motion.button
-            onClick={handleButtonClick}
+            onClick={generatePDF}
             whileTap={{ scale: 0.97 }}
             className="w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-[#4822dd] via-[#8222c2] to-[#ff299c] 
             text-white text-base font-semibold rounded-xl flex items-center justify-center 
