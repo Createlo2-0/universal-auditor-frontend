@@ -21,7 +21,7 @@ const inputFields = [
 
   // Contact Number
   {
-    name: "contactNumber",
+    name: "business_phone",
     placeholder: "Contact Number",
     icon: IoMdCall,
     type: "tel",
@@ -36,7 +36,7 @@ const inputFields = [
 
   // Business Email
   {
-    name: "email",
+    name: "business_email",
     placeholder: "Business Email",
     icon: MdOutlineMail,
     type: "email",
@@ -51,7 +51,7 @@ const inputFields = [
 
   // Website URL
   {
-    name: "website",
+    name: "business_url",
     placeholder: "Website URL",
     icon: IoIosLink,
     type: "text",
