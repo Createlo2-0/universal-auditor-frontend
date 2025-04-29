@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import inputFields from "../../config/inputFields.js";
 import { toast } from 'react-hot-toast';
-import { submitFormData } from '../../api/submitform';
+import { submitFormData } from '../../api/submitAudit.js';
 
 const AuditForm = ({ onClose }) => {
   // Initialize React Hook Form
@@ -13,13 +13,12 @@ const AuditForm = ({ onClose }) => {
   try {
     console.log("Form Data:", data); // For debugging
 
-    const response = await submitFormData(data); // ✅ Send to backend
+    const response = await submitFormData(data);
 
-    console.log("Server Response:", response); // Check backend response
+    console.log("Server Response:", response);
 
     if (response.status === 'success') {
       toast.success('Audit completed successfully! 🎯');
-      // You can also redirect or show result here if needed
     } else {
       toast.error('Audit failed. Please try again.');
     }
