@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FiDownload } from "react-icons/fi";
 import { jsPDF } from "jspdf";
+import { useLocation } from 'react-router-dom';
 
 const reportData = {
   client: "BramhaCorp",
@@ -37,7 +38,20 @@ const reportData = {
 };
 
 const BusinessSummary = () => {
+
+  const location = useLocation();
+
   const [loading, setLoading] = useState(true);
+  const [reportData, setReportData] = useState(null);
+  
+  useEffect(() => {
+    if (location.state && location.state.responseData) {
+      setReportData(location.state.responseData);
+    } else {
+      console.warn("No data received.");
+    }
+  }, [location.state]);  
+
 
   const generatePDF = () => {
     const doc = new jsPDF("p", "mm", "a4");

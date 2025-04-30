@@ -9,27 +9,26 @@ const AuditForm = ({ onClose }) => {
   const { register, handleSubmit, setValue, formState: { errors } } = useForm();
   const navigate = useNavigate();
 
-  // Handle form submission
   const onSubmit = async (data) => {
     try {
-      
-      console.log("Form Data:", data);  
-
+      console.log("Form Data:", data);
       const response = await submitFormData(data);
-
       console.log("Server Response:", response);
 
       if (response.status === 'success') {
-        toast.success('Audit completed successfully! 🎯');
-        navigate('/business-summary');
+        localStorage.setItem('isDataSubmitted', 'true');
+        toast.success('Audit Repost generating...');  
+
+        navigate('/business-summary', {
+          state: { responseData: response.data },
+        });
+        return;
       } else {
+        localStorage.setItem('isDataSubmitted', 'false');
         toast.error('Audit failed. Please try again.');
       }
-     
     } catch (error) {
       console.error('Error submitting form:', error);
-      localStorage.setItem('isDataSubmitted', 'true');
-      navigate('/business-summary');
       toast.error('Error submitting form. Please try again later.');
     }
 
@@ -109,7 +108,7 @@ const AuditForm = ({ onClose }) => {
 
               <div className="flex justify-center">
                 <button
-                  className="w-[70%] sm:w-[50%] mt-3 py-2 bg-gradient-to-r from-[#4822dd] via-[#8222c2] to-[#ff299c]
+                  className="w-[70%] sm:w-[50%] mt-3 py-2 bg-gradient-to-r from-[#4822dd] via-[#8222c2] to-[#ff299c] cursor-pointer
                   text-white text-sm flex items-center justify-center sm:text-base rounded-xl hover:scale-105 hover:shadow-lg hover:shadow-pink-100/10 transition-all shadow-neon"
                   type="submit"
                 >
