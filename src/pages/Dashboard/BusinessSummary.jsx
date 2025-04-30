@@ -1,41 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FiDownload } from "react-icons/fi";
+import { CiBookmark } from "react-icons/ci";
 import { jsPDF } from "jspdf";
 import { useLocation } from 'react-router-dom';
-
-const reportData = {
-  client: "BramhaCorp",
-  businessoverview:
-    "BramhaCorp is a real estate company focusing on residential, commercial, and hospitality projects across India. They aim to create landmarks that redefine urban living and business spaces.",
-  instagramSummary:
-    "BramhaCorp's Instagram presence showcases their projects with visually appealing content, but could benefit from increased engagement through interactive stories and behind-the-scenes glimpses.",
-  facebookSummary:
-    "Their Facebook page shares project updates and company news; however, there's room to foster a stronger community by initiating conversations and responding more actively to comments.",
-  instagramScore: 72,
-  facebookScore: 68,
-  overallScore: 79,
-  businesssummary:
-    "BramhaCorp demonstrates a solid foundation on social media but can elevate their performance by prioritizing audience interaction and diversifying content formats. Ignoring these aspects might mean missing out on valuable opportunities to connect with potential clients and build brand loyalty.",
-  insights: [
-    "Content is visually appealing but lacks a consistent brand voice across platforms.",
-    "There's limited use of user-generated content or influencer collaborations to expand reach.",
-    "The frequency of posts could be increased to maintain consistent engagement.",
-    "Opportunities to leverage targeted advertising based on demographics and interests are being missed.",
-    "Competitor analysis reveals gaps in content themes and engagement tactics.",
-    "Website integration for social tracking and conversions is not fully optimized.",
-  ],
-  tips: [
-    "Schedule a call within the next 24 hours to discuss a tailored social media strategy.",
-    "Request a quote for a targeted ad campaign focusing on high-potential demographics.",
-    "Start a test campaign showcasing behind-the-scenes content to boost engagement.",
-    "Audit your top three competitors this week and identify quick wins.",
-    "Integrate social tracking pixels on your website to measure conversions and ROI.",
-    "Launch an interactive contest or giveaway on Instagram to grow your followers.",
-    "Implement a customer review and testimonial strategy across social platforms.",
-    "Explore micro-influencer collaborations to amplify your brand message.",
-  ],
-};
+import Logo from "../../../public/logo.png";
+import { FaWhatsapp } from "react-icons/fa";
 
 const BusinessSummary = () => {
 
@@ -43,143 +13,153 @@ const BusinessSummary = () => {
 
   const [loading, setLoading] = useState(true);
   const [reportData, setReportData] = useState(null);
-  
+
   useEffect(() => {
     if (location.state && location.state.responseData) {
       setReportData(location.state.responseData);
     } else {
       console.warn("No data received.");
     }
-  }, [location.state]);  
-
+  }, [location.state]);
 
   const generatePDF = () => {
     const doc = new jsPDF("p", "mm", "a4");
 
-    // Colors and styles based on your CSS
-    const primaryColor = "#38bdf8";
-    const secondaryColor = "#0ea5e9";
-    const textColor = "#ffffff";
-    const backgroundColor = "#0c1323";
-    const boxColor = "#0e172f";
-    const borderColor = "#1f2e46";
-    const footerColor = "#94a3b8";
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const leftMargin = 20;
+    const rightMargin = 20;
+    const contentWidth = pageWidth - leftMargin - rightMargin;
+    const marginTop = 20;
+    const marginBottom = 20;
 
-    // Draw background
-    doc.setFillColor(5, 15, 26); // #050f1a
-    doc.rect(0, 0, 210, 297, "F"); // Fill entire page
+    const theme = {
+      primary: [56, 189, 248],
+      secondary: [14, 165, 233],
+      text: [255, 255, 255],
+      background: [5, 15, 26],
+      container: [12, 19, 35],
+      border: [31, 46, 70],
+      footer: [148, 163, 184],
+    };
 
-    // Container box
-    doc.setFillColor(12, 19, 35); // #0c1323
-    doc.roundedRect(10, 10, 190, 277, 5, 5, 'F');
+    let y = marginTop;
 
-    let y = 20;
+    const drawBackground = () => {
+      doc.setFillColor(...theme.background);
+      doc.rect(0, 0, pageWidth, pageHeight, "F");
+      doc.setFillColor(...theme.container);
+      doc.roundedRect(leftMargin - 5, 10, contentWidth + 10, pageHeight - 20, 5, 5, "F");
+    };
 
-    // Header
+    const addNewPage = () => {
+      doc.addPage();
+      drawBackground();
+      y = marginTop;
+    };
+
+    const checkPageSpace = (lines = 1, lineHeight = 7) => {
+      const spaceNeeded = lines * lineHeight + 10;
+      if (y + spaceNeeded > pageHeight - marginBottom) {
+        addNewPage();
+      }
+    };
+
+    const renderSection = (title, content, isBulleted = false) => {
+      const lines = Array.isArray(content) ? content : [content];
+      checkPageSpace(lines.length + 3);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.setTextColor(...theme.primary);
+      y += 15;
+      doc.text(title, leftMargin, y);
+
+      doc.setDrawColor(...theme.border);
+      y += 5;
+      doc.line(leftMargin, y, pageWidth - rightMargin, y);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor(...theme.text);
+      y += 8;
+
+      lines.forEach((line) => {
+        checkPageSpace(1);
+        const bullet = isBulleted ? "• " : "";
+        const wrapped = doc.splitTextToSize(`${bullet}${line}`, contentWidth);
+        doc.text(wrapped, leftMargin, y);
+        y += wrapped.length * 6;
+      });
+
+      y += 5;
+    };
+
+    drawBackground();
+
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(26);
-    doc.setTextColor(14, 165, 233); // #0ea5e9
-    doc.text("Audit Report", 15, y);
+    doc.setFontSize(24);
+    doc.setTextColor(...theme.secondary);
+    doc.text("Audit Report", leftMargin, y);
 
     y += 10;
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(16);
-    doc.setTextColor(56, 189, 248); // #38bdf8
-    doc.text(`Client: ${reportData.client || "N/A"}`, 15, y);
+    doc.setFontSize(14);
+    doc.setTextColor(...theme.primary);
+    doc.text(`Client: ${reportData.client || "N/A"}`, leftMargin, y);
 
     y += 8;
-    doc.setTextColor(255, 255, 255); // #ffffff
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 15, y);
+    doc.setTextColor(...theme.text);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, leftMargin, y);
 
-    // Section: Business Overview
+    renderSection("Business Overview", reportData.businessoverview || "No overview provided.");
+    renderSection("Social Media Scores", [
+      `Instagram: ${reportData.instagramScore || "N/A"}%`,
+      `Facebook: ${reportData.facebookScore || "N/A"}%`,
+      `Overall Score: ${reportData.overallScore || "N/A"}%`
+    ]);
+
+    // Graphical representation of overall score (Horizontal Score Bar)
+    const overallScore = reportData.overallScore || 0;
+    const barX = leftMargin;
+    const barY = y + 20;
+    const barWidth = contentWidth;
+    const barHeight = 12;
+
+    doc.setTextColor(...theme.primary);
+    doc.setFontSize(14);
     y += 15;
+    doc.text("Overall Score", leftMargin, y);
+
+    doc.setFillColor(...theme.border);
+    doc.roundedRect(barX, barY, barWidth, barHeight, 3, 3, "F");
+
+    const filledWidth = (overallScore / 100) * barWidth;
+    doc.setFillColor(...theme.secondary);
+    doc.roundedRect(barX, barY, filledWidth, barHeight, 3, 3, "F");
+
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor(primaryColor);
-    doc.text("Business Overview", 15, y);
-
-    y += 5;
-    doc.setDrawColor(31, 46, 70); // #1f2e46
-    doc.line(15, y, 195, y);
-
-    y += 8;
-    doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.setTextColor(textColor);
-    doc.text(reportData.businessoverview || "No overview provided.", 15, y, { maxWidth: 180 });
+    doc.setTextColor(...theme.text);
+    const scoreText = `${overallScore}%`;
+    const scoreTextWidth = doc.getTextWidth(scoreText);
+    const scoreTextX = barX + (barWidth / 2) - (scoreTextWidth / 2);
+    const scoreTextY = barY + barHeight - 3;
+    doc.text(scoreText, scoreTextX, scoreTextY);
 
-    // Section: Social Media Scores
-    y += 20;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor(primaryColor);
-    doc.text("Social Media Scores", 15, y);
+    y = barY + barHeight + 15;
 
-    y += 5;
-    doc.line(15, y, 195, y);
+    renderSection("Insights", reportData.insights?.length ? reportData.insights : ["No insights provided."], true);
+    renderSection("Tips", reportData.tips?.length ? reportData.tips : ["No tips provided."], true);
 
-    y += 8;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.setTextColor(textColor);
-    doc.text(`Instagram: ${reportData.instagramScore || "N/A"}%`, 15, y);
-
-    y += 7;
-    doc.text(`Facebook: ${reportData.facebookScore || "N/A"}%`, 15, y);
-
-    y += 7;
-    doc.text(`Overall Score: ${reportData.overallScore || "N/A"}%`, 15, y);
-
-    // Section: Insights
-    y += 15;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor(primaryColor);
-    doc.text("Insights", 15, y);
-
-    y += 5;
-    doc.line(15, y, 195, y);
-
-    y += 8;
-    const insights = reportData.insights || ["No insights provided."];
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.setTextColor(textColor);
-    insights.forEach((insight, index) => {
-      doc.text(`• ${insight}`, 20, y + (index * 7), { maxWidth: 180 });
-    });
-
-    y += insights.length * 7 + 5;
-
-    // Section: Tips
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.setTextColor(primaryColor);
-    doc.text("Tips", 15, y);
-
-    y += 5;
-    doc.line(15, y, 195, y);
-
-    y += 8;
-    const tips = reportData.tips || ["No tips provided."];
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.setTextColor(textColor);
-    tips.forEach((tip, index) => {
-      doc.text(`• ${tip}`, 20, y + (index * 7), { maxWidth: 180 });
-    });
-
-    // Footer
+    checkPageSpace(2);
     doc.setFont("helvetica", "italic");
     doc.setFontSize(10);
-    doc.setTextColor(148, 163, 184); // #94a3b8
-    doc.line(60, 280, 150, 280);
-    doc.text(
-      "Powered by Universal Auditor AI | Delivered by Createlo",
-      105,
-      285,
-      { align: "center" }
-    );
+    doc.setTextColor(...theme.footer);
+    doc.line(pageWidth / 3, pageHeight - 17, pageWidth * 2 / 3, pageHeight - 17);
+    doc.text("Powered by Universal Auditor AI | Delivered by Createlo", pageWidth / 2, pageHeight - 10, {
+      align: "center",
+    });
 
     doc.save("Audit_Report.pdf");
   };
@@ -211,25 +191,35 @@ const BusinessSummary = () => {
         className="bg-[#0a142f] w-full max-w-6xl rounded-2xl p-6 md:p-8 text-white shadow-2xl select-none"
       >
         {/* Header */}
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <h1 className="text-[#5ad1f3] font-extrabold text-3xl tracking-wide">
-            CREATE<span className="text-[#b32cc7]">LO</span>
-          </h1>
+        <header className="flex items-center justify-between flex-col sm:flex-row sm:items-center mb-4 gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            whileHover={{ scale: 1.2 }}
+            className="w-36 cursor-pointer"
+          >
+            <img src={Logo} loading="lazy" alt="Createlo Logo" className="object-contain scale-110" />
+          </motion.div>
 
           <motion.button
             onClick={generatePDF}
             whileTap={{ scale: 0.97 }}
-            className="w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-[#4822dd] via-[#8222c2] to-[#ff299c] 
-            text-white text-base font-semibold rounded-xl flex items-center justify-center 
-            gap-2 transition-all duration-300 ease-in-out shadow-lg cursor-pointer"
+            className="group w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-[#4822dd] via-[#8222c2] to-[#ff299c] 
+  text-white text-base font-semibold rounded-xl flex items-center justify-center 
+  gap-2 transition-all duration-300 ease-in-out shadow-lg cursor-pointer mt-2"
           >
-            <FiDownload className="text-xl" />
-            Download PDF
+            <FiDownload
+              className="text-xl transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+            />
+            <span className="transition-transform duration-300 group-hover:translate-x-1">
+              Save This Audit Report (PDF)
+            </span>
           </motion.button>
         </header>
 
         {/* Report Intro */}
-        <section className="mb-8">
+        <section className="my-8">
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -247,7 +237,6 @@ const BusinessSummary = () => {
 
         {/* Company Overview and Scores */}
         <section className="flex flex-col md:flex-row gap-6 md:gap-8 mb-8">
-          {/* Overview */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -255,38 +244,53 @@ const BusinessSummary = () => {
             transition={{ delay: 0.3 }}
             className="border border-[#5ad1f3] rounded-xl p-6 flex-1 bg-gradient-to-br from-[#0a142f] to-[#1a2e6a]"
           >
-            <h3 className="text-[#5ad1f3] font-semibold uppercase text-sm mb-4">
+            <motion.h3
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.1, color: "#82e9ff" }}
+              className="text-[#5ad1f3] font-semibold uppercase text-sm mb-4 transition-all duration-300"
+            >
               Company Overview
-            </h3>
-            <p className="text-sm leading-relaxed">{reportData.businessoverview}</p>
+            </motion.h3>
+            <p className="text-sm cursor-text leading-relaxed">{reportData.businessoverview}</p>
           </motion.div>
 
           {/* Social Media Scores */}
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {[{ platform: "Instagram", score: reportData.instagramScore, color: "#b32cc7" },
-            { platform: "Facebook", score: reportData.facebookScore, color: "#5ad1f3" }]
-              .map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.4 + index * 0.2 }}
-                  className="border border-[#1a2e6a] rounded-xl p-4 bg-gradient-to-br from-[#0a142f] to-[#1a2e6a]"
-                >
-                  <p className="text-sm mb-2">{item.platform}</p>
-                  <p className="font-bold text-3xl">{item.score}%</p>
-                  <div className="h-2 w-full bg-[#1a2e6a] rounded-full mt-2">
-                    <div
-                      className="h-2 rounded-full"
-                      style={{
-                        width: `${item.score}%`,
-                        backgroundColor: item.color,
-                      }}
-                    ></div>
-                  </div>
-                </motion.div>
-              ))}
+            {[
+              { platform: "Instagram", score: reportData.instagramScore, color: "#b32cc7" },
+              { platform: "Facebook", score: reportData.facebookScore, color: "#5ad1f3" },
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                whileHover={{
+                  cursor: "pointer",
+                  boxShadow: `0px 0px 6px 2px ${item.color}`,
+                }}
+                className="border border-[#1a2e6a] rounded-xl p-4 bg-gradient-to-br from-[#0a142f] to-[#1a2e6a] transition-transform duration-300"
+              >
+                <p className="text-sm mb-2">{item.platform}</p>
+                <p className="font-bold text-3xl">{item.score}%</p>
+                <div className="h-2 w-full bg-[#1a2e6a] rounded-full mt-2">
+                  <motion.div
+                    className="h-2 rounded-full"
+                    style={{
+                      width: `${item.score}%`,
+                      backgroundColor: item.color,
+                    }}
+                    whileHover={{
+                      backgroundColor: "#ffffff",
+                    }}
+                  ></motion.div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </section>
 
@@ -349,17 +353,35 @@ const BusinessSummary = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.5 }}
-            className="flex-1"
+            className="flex-1 cursor-text mt-4"
           >
-            <h3 className="text-[#5ad1f3] font-semibold uppercase text-sm mb-4">
+            <h3 className="text-[#5ad1f3] font-semibold uppercase text-lg mb-4">
               Business Summary
             </h3>
             <p className="text-sm leading-relaxed">{reportData.businesssummary}</p>
           </motion.div>
         </section>
 
+        <section className="mb-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="relative cursor-pointer w-full h-[42vh] rounded-xl overflow-hidden shadow-lg"
+          >
+            <video
+              src="/bg.mp4"
+              autoPlay
+              loop
+              controls
+              className="absolute top-0 left-0 w-full h-full object-cover"
+            ></video>
+          </motion.div>
+        </section>
+
         {/* Insights and Tips */}
-        <section className="flex flex-col md:flex-row gap-6 md:gap-8 border-t border-[#1a2e6a] pt-8">
+        <section className="flex flex-col md:flex-row gap-6 md:gap-8 border-t border-b border-[#1a2e6a] py-8">
           {/* Insights */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -409,7 +431,7 @@ const BusinessSummary = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="p-4 border border-[#1a2e6a] rounded-lg bg-gradient-to-br from-[#0a142f] to-[#1a2e6a] hover:shadow-lg hover:shadow-pink-400/30 transition-shadow duration-300 flex items-start gap-3"
+                  className="p-4 border cursor-pointer border-[#1a2e6a] rounded-lg bg-gradient-to-br from-[#0a142f] to-[#1a2e6a] hover:shadow-lg hover:shadow-pink-400/30 transition-shadow duration-300 flex items-start gap-3"
                 >
                   <span className="text-pink-400 text-lg sm:text-xl">•</span>
                   <p className="text-gray-300 text-sm sm:text-base leading-relaxed hover:text-pink-400 transition-colors duration-300">
@@ -419,6 +441,55 @@ const BusinessSummary = () => {
               ))}
             </ul>
           </motion.div>
+        </section>
+
+        <section className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 mt-6">
+          <motion.button
+            onClick={() => (window.location.href = "https://www.createlo.in/contact-us")}
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.05 }}
+            className="group w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-[#4822dd] via-[#8222c2] to-[#ff299c] 
+      text-white text-sm sm:text-base font-semibold rounded-xl flex items-center justify-center 
+      gap-2 transition-all duration-300 ease-in-out shadow-lg hover:shadow-pink-400/30 cursor-pointer"
+          >
+            <CiBookmark
+              className="text-[24px] sm:text-[28px] transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+            />
+            <span className="transition-transform duration-300 group-hover:translate-x-1">
+              Schedule My Free Audit Call
+            </span>
+          </motion.button>
+
+          <motion.button
+            onClick={() => (window.location.href = "https://wa.me/message/TAHHTANJL6UGL1")}
+            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.05 }}
+            className="group w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-[#4822dd] via-[#8222c2] to-[#ff299c] 
+      text-white text-sm sm:text-base font-semibold rounded-xl flex items-center justify-center 
+      gap-2 transition-all duration-300 ease-in-out shadow-lg hover:shadow-cyan-400/30 cursor-pointer"
+          >
+            <FaWhatsapp
+              className="text-[24px] sm:text-[28px] transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+            />
+            <span className="transition-transform duration-300 group-hover:translate-x-1">
+              Chat Now — Fastest Support!
+            </span>
+          </motion.button>
+        </section>
+
+        <section className="flex flex-col items-center justify-center mt-8 px-4 sm:px-8">
+          <p className="text-sm sm:text-base text-gray-300 leading-relaxed text-center">
+            💡 What you see here isn’t just data — it’s your brand’s reflection in the digital mirror.
+            Even if AI skips a detail or two, this report uncovers what your future customers already perceive — from Instagram impressions to missed SEO signals.
+            In today’s AI-first world, your visibility is your credibility. Take this audit as your launchpad — optimize, engage, and own your digital narrative before someone else does.
+
+          </p>
+        </section>
+
+        <section className="flex flex-col items-center justify-center mt-6">
+          <p className="text-xs sm:text-xl text-gray-400 text-center">
+            Powered by <span className="text-white font-semibold">Gemini AI</span> | Delivered by <span className="text-white font-semibold">Createlo</span>
+          </p>
         </section>
       </motion.main>
     </div>
