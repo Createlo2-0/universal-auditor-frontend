@@ -20,7 +20,7 @@ const AuditForm = ({ onClose }) => {
       console.log("Server Response:", response);
 
       if (response.status === 'success') {
-        localStorage.setItem('isDataSubmitted', 'true');
+        // localStorage.setItem('isDataSubmitted', 'true');
         toast.success('Your AI Audit Report is now being generated. Sit tight, it’ll be worth it!');
 
         navigate('/business-summary', {
@@ -29,7 +29,7 @@ const AuditForm = ({ onClose }) => {
         setIsLoading(false);
         return;
       } else {
-        localStorage.setItem('isDataSubmitted', 'false');
+        // localStorage.setItem('isDataSubmitted', 'false');
         toast.error(`Audit couldn't be completed. Check details or try again in a moment.`);
       }
     } catch (error) {
