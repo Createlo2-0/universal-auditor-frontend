@@ -1,7 +1,6 @@
 import UserHome from '../pages/user/UserHome.jsx';
 import BusinessSummary from '../pages/Dashboard/BusinessSummary.jsx';
 import AuditForm from '../components/AuditForm/AuditForm.jsx';
-import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute.jsx';
 
 const routes = [
   {
@@ -10,12 +9,8 @@ const routes = [
   },
   {
     path: '/business-summary',
-    element: (<ProtectedRoute
-      isAllowed={localStorage.getItem('isDataSubmitted') === 'true'}
-      redirectPath="/audit-form"
-    >
+    element:
       <BusinessSummary />
-    </ProtectedRoute>),
   },
   {
     path: '/audit-form',

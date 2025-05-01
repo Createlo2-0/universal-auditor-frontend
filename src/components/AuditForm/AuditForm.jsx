@@ -5,7 +5,6 @@ import inputFields from "../../config/inputFields.js";
 import { toast } from 'react-hot-toast';
 import { submitFormData } from '../../api/submitAudit.js';
 import { useNavigate } from 'react-router-dom';
-import Logo from "../../../public/logo.png"
 
 const AuditForm = ({ onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +69,7 @@ const AuditForm = ({ onClose }) => {
               whileHover={{ scale: 1.2 }}
               className="w-36 cursor-pointer mb-4"
             >
-              <img src={Logo} loading="lazy" alt="Createlo Logo" className="object-contain scale-110" />
+              <img src="/logo.png" loading="lazy" alt="Createlo Logo" className="object-contain scale-110" />
             </motion.div>
             <h2 className="text-lg sm:text-xl text-[#367df8] mt-1 drop-shadow-[0_0_8px_#0ff] font-medium">
               User Input Form
