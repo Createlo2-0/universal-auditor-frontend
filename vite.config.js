@@ -4,10 +4,5 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/',
-  server: {
-    port: 3000, // Change the port to 3000
-    open: true,
-    historyApiFallback: true,
-  },
+  base: '/universal-auditor-frontend/',
 })

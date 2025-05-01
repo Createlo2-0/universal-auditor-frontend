@@ -6,7 +6,7 @@ import App from './App.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter basename="/">
+    <BrowserRouter basename="/universal-auditor-frontend">
       <App />
     </BrowserRouter>
   </StrictMode>

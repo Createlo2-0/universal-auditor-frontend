@@ -5,6 +5,7 @@ import { CiBookmark } from "react-icons/ci";
 import { jsPDF } from "jspdf";
 import { useLocation } from 'react-router-dom';
 import { FaWhatsapp } from "react-icons/fa";
+import Logo from "../../assets/logo.png";
 
 const BusinessSummary = () => {
 
@@ -198,7 +199,7 @@ const BusinessSummary = () => {
             whileHover={{ scale: 1.2 }}
             className="w-36 cursor-pointer"
           >
-            <img src="/logo.png" loading="lazy" alt="Createlo Logo" className="object-contain scale-110" />
+            <img src={Logo} loading="lazy" alt="Createlo Logo" className="object-contain scale-110" />
           </motion.div>
 
           <motion.button
