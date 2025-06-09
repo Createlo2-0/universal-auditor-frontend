@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'https://backend-testing-qgcx.onrender.com', 
+  baseURL: 'https://firebaseauditor.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -13,6 +13,9 @@ export const submitFormData = async (formData) => {
     const response = await apiClient.post('/submit', formData);
     return response.data;
   } catch (error) {
+    if (error.message === 'Network Error') {
+      throw new Error('Network error or CORS issue. Check backend CORS settings.');
+    }
     throw error.response ? error.response.data : new Error('Unknown error');
   }
 };
