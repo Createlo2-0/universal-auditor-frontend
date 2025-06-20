@@ -17,154 +17,846 @@ const BusinessSummary = () => {
   useEffect(() => {
     if (location.state && location.state.responseData) {
       setReportData(location.state.responseData);
+      console.log(reportData);
     } else {
       console.warn("No data received.");
     }
   }, [location.state]);
 
-  const generatePDF = () => {
+ 
+const generatePDF = () => {
     const doc = new jsPDF("p", "mm", "a4");
 
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const leftMargin = 20;
-    const rightMargin = 20;
-    const contentWidth = pageWidth - leftMargin - rightMargin;
-    const marginTop = 20;
-    const marginBottom = 20;
+    const centerX = pageWidth / 2;
 
-    const theme = {
-      primary: [56, 189, 248],
-      secondary: [14, 165, 233],
-      text: [255, 255, 255],
-      background: [5, 15, 26],
-      container: [12, 19, 35],
-      border: [31, 46, 70],
-      footer: [148, 163, 184],
+    // Updated color palette - changed pink to blue and customized colors
+    const colors = {
+        background: [5,15,26],       
+        container: [14, 23, 47],        
+        border: [31, 46, 70],          
+        heading: [56, 189, 248],        
+        icon: [59, 130, 246],           
+        content: [255, 255, 255],       
+        facebookBlue: [24, 119, 242],   
+        websiteGreen: [40, 167, 69],    
+        createloLo: [217, 70, 239],   
+        circularChartBorder: [31, 46, 70], 
+        circularChartFill: [56, 189, 248]  
     };
 
-    let y = marginTop;
 
-    const drawBackground = () => {
-      doc.setFillColor(...theme.background);
-      doc.rect(0, 0, pageWidth, pageHeight, "F");
-      doc.setFillColor(...theme.container);
-      doc.roundedRect(leftMargin - 5, 10, contentWidth + 10, pageHeight - 20, 5, 5, "F");
+    // let y = 20;
+ const drawBackground = () => {
+        doc.setFillColor(...colors.background);
+        doc.rect(0, 0, pageWidth, pageHeight, "F");
     };
 
-    const addNewPage = () => {
-      doc.addPage();
-      drawBackground();
-      y = marginTop;
-    };
-
-    const checkPageSpace = (lines = 1, lineHeight = 7) => {
-      const spaceNeeded = lines * lineHeight + 10;
-      if (y + spaceNeeded > pageHeight - marginBottom) {
-        addNewPage();
-      }
-    };
-
-    const renderSection = (title, content, isBulleted = false) => {
-      const lines = Array.isArray(content) ? content : [content];
-      checkPageSpace(lines.length + 3);
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
-      doc.setTextColor(...theme.primary);
-      y += 15;
-      doc.text(title, leftMargin, y);
-
-      doc.setDrawColor(...theme.border);
-      y += 5;
-      doc.line(leftMargin, y, pageWidth - rightMargin, y);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
-      doc.setTextColor(...theme.text);
-      y += 8;
-
-      lines.forEach((line) => {
-        checkPageSpace(1);
-        const bullet = isBulleted ? "• " : "";
-        const wrapped = doc.splitTextToSize(`${bullet}${line}`, contentWidth);
-        doc.text(wrapped, leftMargin, y);
-        y += wrapped.length * 6;
-      });
-
-      y += 5;
-    };
-
+    // Draw background for first page
     drawBackground();
+    
+    // Draw pink container for all content
+    const containerMargin = 7;
+    const containerWidth = pageWidth - (containerMargin * 2);
+    const containerHeight = pageHeight - (containerMargin * 2);
+    doc.setFillColor(12, 19, 35); // Pink background
+    doc.roundedRect(containerMargin, containerMargin, containerWidth, containerHeight, 1, 1, "FD");
 
+    let y = 20;
+
+    // ## Header Section (Clean - No Background Bar)
+
+    doc.setFont("helvetica", "bold"); 
+    doc.setFontSize(28);
+
+ // "CREATELO" with two colors
+doc.setTextColor(...colors.heading); 
+doc.text("CREATE", 25, y + 5);
+
+const createTextWidth = doc.getTextWidth("CREATE"); 
+doc.setTextColor(...colors.createloLo); 
+doc.text(" LO", 25 + createTextWidth, y + 5); 
+
+// AUDITOR REPORT SUMMARY with reduced spacing
+doc.setFont("helvetica", "bold");
+doc.setFontSize(20);
+doc.setTextColor(...colors.heading);
+doc.text("AUDITOR REPORT SUMMARY", 25, y + 15);
+
+// Universal Auditor AI with reduced spacing
+doc.setFont("helvetica", "italic");
+doc.setFontSize(15);
+doc.setTextColor(...colors.content);
+doc.text("Universal Auditor AI", 25, y + 25);
+
+// Client information with reduced spacing
+doc.setFont("helvetica", "normal");
+doc.setFontSize(14);
+doc.setTextColor(...colors.content);
+doc.text(`Client: ${reportData.client}`, 25, y + 35);
+
+y += 45; // Reduced from 60 to 45 to decrease gap
+
+// ## Company Overview Section
+
+const margin = 15; 
+const companyOverviewRectX = margin;
+const companyOverviewRectY = y;
+const companyOverviewRectWidth = pageWidth - (margin * 2); 
+const companyOverviewRectHeight = 45;
+const companyOverviewRectRadius = 6;
+
+// Main background box for overview with dark blue background
+doc.setFillColor(14, 23, 47); // #0e172f converted to RGB
+doc.roundedRect(companyOverviewRectX, companyOverviewRectY, companyOverviewRectWidth, companyOverviewRectHeight, companyOverviewRectRadius, companyOverviewRectRadius, "F");
+
+// Add thin border to Company Overview section
+doc.setLineWidth(0.5);
+doc.setDrawColor(...colors.border);
+doc.roundedRect(companyOverviewRectX, companyOverviewRectY, companyOverviewRectWidth, companyOverviewRectHeight, companyOverviewRectRadius, companyOverviewRectRadius, "S");
+
+// Company Overview Heading
+doc.setFont("helvetica", "bold");
+doc.setFontSize(16);
+doc.setTextColor(...colors.heading);
+doc.text("COMPANY OVERVIEW", margin + 15, companyOverviewRectY + 12); 
+
+let overviewParagraphY = companyOverviewRectY + 20;
+
+doc.setFont("helvetica", "normal");
+doc.setFontSize(11);
+doc.setTextColor(...colors.content);
+const overviewLines = doc.splitTextToSize(reportData.businessoverview, companyOverviewRectWidth - 30); 
+const limitedOverviewLines = overviewLines.slice(0, 5);
+doc.text(limitedOverviewLines, margin + 15, overviewParagraphY); 
+
+y += companyOverviewRectHeight + 10;
+    // ---
+    
+// ## Circular Chart Section
+const circularChartBoxHeight = 90;
+const circularChartBoxX = 15;
+const circularChartBoxY = y;
+const circularChartBoxWidth = pageWidth - 30; 
+const circularChartBoxRadius = 6;
+
+
+// Draw the background box for the circular chart
+doc.setFillColor(12, 19, 35); 
+doc.roundedRect(circularChartBoxX, circularChartBoxY, circularChartBoxWidth, circularChartBoxHeight, circularChartBoxRadius, circularChartBoxRadius, "F");
+
+// Add thin border to the circular chart section
+doc.setLineWidth(0.5);
+doc.setDrawColor(...colors.border);
+doc.roundedRect(circularChartBoxX, circularChartBoxY, circularChartBoxWidth, circularChartBoxHeight, circularChartBoxRadius, circularChartBoxRadius, "S");
+
+// Circular Chart elements - centered within the container
+const circleX = circularChartBoxX + (circularChartBoxWidth / 2); 
+const circleY = circularChartBoxY + 30;
+const radius = 22;
+
+// Background circle
+doc.setFillColor(12, 19, 35);
+doc.circle(circleX, circleY, radius, "F");
+
+// Outer border circle - using custom border color
+doc.setLineWidth(0.7);
+doc.setDrawColor(...colors.circularChartBorder); 
+doc.circle(circleX, circleY, radius, "S");
+
+// Progress arc with gradient from blue to light blue
+const startAngle = -90;
+const endAngle = startAngle + (reportData.overallScore / 100) * 360;
+const totalAngleRange = endAngle - startAngle;
+doc.setLineWidth(3.5); // Slightly thinner progress arc
+
+const arcX = circleX;
+const arcY = circleY;
+const progressRadius = radius - 3; 
+
+// Create progress arc with gradient from blue to purple
+for (let angle = startAngle; angle < endAngle; angle += 1) {
+    // Calculate progress ratio for gradient
+    const progress = (angle - startAngle) / totalAngleRange;
+    
+    // Interpolate between blue #0118D8 (1, 24, 216) and light blue #38bdf8 (56, 189, 248)
+    const startColor = [1, 24, 216];
+    const endColor = [56, 189, 248];
+    
+    const r = Math.round(startColor[0] + (endColor[0] - startColor[0]) * progress);
+    const g = Math.round(startColor[1] + (endColor[1] - startColor[1]) * progress);
+    const b = Math.round(startColor[2] + (endColor[2] - startColor[2]) * progress);
+    
+    doc.setDrawColor(r, g, b);
+    
+    const x1 = arcX + (progressRadius * Math.cos(angle * Math.PI / 180));
+    const y1 = arcY + (progressRadius * Math.sin(angle * Math.PI / 180));
+    const x2 = arcX + (radius * Math.cos(angle * Math.PI / 180));
+    const y2 = arcY + (radius * Math.sin(angle * Math.PI / 180));
+    
+    doc.line(x1, y1, x2, y2);
+}
+
+// Inner border circle - drawn after progress to overlap
+const innerRadius = radius - 3;
+doc.setLineWidth(0.7);
+doc.setDrawColor(...colors.circularChartBorder); 
+doc.circle(circleX, circleY, innerRadius, "S");
+
+// Score text
+doc.setFont("helvetica", "bold");
+doc.setFontSize(24);
+doc.setTextColor(...colors.content);
+doc.text(`${reportData.overallScore}%`, circleX, circleY + 2, { align: "center" });
+
+// "Out of 100" text - centered within the container
+const outOf100Y = circularChartBoxY + circularChartBoxHeight - 22; 
+doc.setFont("helvetica", "normal");
+doc.setFontSize(14); 
+doc.setTextColor(...colors.content);
+doc.text("Out of 100", circleX, outOf100Y, { align: "center" });
+
+// --- Evaluation Text ---
+const avgSocialScore = (reportData.instagramScore + reportData.facebookScore + reportData.websiteScore) / 3;
+let evaluationText = "";
+
+if (avgSocialScore >= 75) {
+    evaluationText = "Strong Digital Presence";
+} else if (avgSocialScore >= 50) {
+    evaluationText = "Good Potential, Room for Growth";
+} else {
+    evaluationText = "Opportunities for Digital Improvement";
+}
+
+const evaluationTextY = circularChartBoxY + circularChartBoxHeight - 8; 
+doc.setFont("helvetica", "italic");
+doc.setFontSize(11); 
+doc.setTextColor(...colors.content);
+doc.text(evaluationText, circleX, evaluationTextY, { align: "center" });
+
+y += circularChartBoxHeight + 10;
+  
+    // ## Social Media Icon Drawing Functions
+    
+   const drawInstagramIcon = (x, y, size) => {
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    const cornerRadius = size * 0.2;
+    
+    // Set pink color for all borders
+    doc.setDrawColor(225, 48, 108);
+    
+    // Scale factor to increase overall icon size
+    const scaleFactor = 1.5; 
+
+    // Inner camera frame border - thin
+    doc.setLineWidth(size * 0.025 * scaleFactor);
+    const frameInset = size * 0.03; // Reduced inset to make frame larger
+    const frameCornerRadius = size * 0.06 * scaleFactor;
+    doc.roundedRect(
+        x + frameInset, 
+        y + frameInset, 
+        size - (frameInset * 2), 
+        size - (frameInset * 2), 
+        frameCornerRadius, 
+        frameCornerRadius, 
+        "S"
+    );
+
+    // Main lens outer ring - thin border
+    doc.setLineWidth(size * 0.03 * scaleFactor); 
+    const outerLensRadius = size * 0.18 * scaleFactor; 
+    doc.circle(centerX, centerY, outerLensRadius, "S");
+
+    // Inner lens circle - thin
+    doc.setLineWidth(size * 0.025 * scaleFactor);
+    const innerLensRadius = size * 0.11 * scaleFactor; 
+    doc.circle(centerX, centerY, innerLensRadius, "S");
+
+    // Camera viewfinder - thin circle border
+    doc.setLineWidth(size * 0.02 * scaleFactor);
+    const viewfinderRadius = size * 0.05 * scaleFactor; 
+    const viewfinderX = centerX + size * 0.22 * scaleFactor; 
+    const viewfinderY = centerY - size * 0.22 * scaleFactor; 
+    doc.circle(viewfinderX, viewfinderY, viewfinderRadius, "S");
+};
+
+const drawFacebookIcon = (x, y, size) => {
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    const circleRadius = size / 2;
+    
+    // Draw the circular background with Facebook blue
+    doc.setFillColor(...colors.facebookBlue);
+    doc.circle(centerX, centerY, circleRadius, "F");
+    
+    // Draw lowercase 'f' using text - properly centered
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(24);
-    doc.setTextColor(...theme.secondary);
-    doc.text("Audit Report", leftMargin, y);
+    doc.setFontSize(size * 2.5);
+    doc.setTextColor(255, 255, 255);
+    
+    // Get the text width and height to center it properly
+    const textWidth = doc.getTextWidth("f");
+    const textX = centerX - (textWidth / 2);
+    const textY = centerY + (size * 0.35); 
+    doc.text("f", textX, textY);
+};
 
-    y += 10;
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(14);
-    doc.setTextColor(...theme.primary);
-    doc.text(`Client: ${reportData.client || "N/A"}`, leftMargin, y);
+const drawWebsiteIcon = (x, y, size) => {
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    const radius = size / 2.2;
+    
+    doc.setLineWidth(size * 0.045);
+    doc.setDrawColor(...colors.websiteGreen);
+    
+    // Outer circle (globe outline)
+    doc.circle(centerX, centerY, radius, "S");
+    
+    // Set thicker line width for grid lines
+    doc.setLineWidth(size * 0.02);
+    
+    // 3 Latitude lines (horizontal curved lines)
+    const drawLatitude = (offsetY, curveIntensity) => {
+        const steps = 15;
+        
+        // Calculate the width at this latitude using circle geometry
+        const latitudeRadius = Math.sqrt(Math.max(0, radius * radius - offsetY * offsetY)) * 0.9;
+        const actualStartX = centerX - latitudeRadius;
+        const actualEndX = centerX + latitudeRadius;
+        
+        for (let i = 0; i < steps - 1; i++) {
+            const t1 = i / (steps - 1);
+            const t2 = (i + 1) / (steps - 1);
+            
+            const x1 = actualStartX + (actualEndX - actualStartX) * t1;
+            const x2 = actualStartX + (actualEndX - actualStartX) * t2;
+            
+            // Calculate curve using sine function for moderate curve
+            const curve1 = Math.sin(t1 * Math.PI) * curveIntensity * 1.5;
+            const curve2 = Math.sin(t2 * Math.PI) * curveIntensity * 1.5;
+            
+            const y1 = centerY + offsetY + curve1;
+            const y2 = centerY + offsetY + curve2;
+            
+            doc.line(x1, y1, x2, y2);
+        }
+    };
+    
+    // Draw 3 latitude lines
+    drawLatitude(0, 0); // Equator (straight)
+    drawLatitude(-radius * 0.5, -radius * 0.08); 
+    drawLatitude(radius * 0.5, radius * 0.08);   
+    
+    // 3 Longitude lines (vertical curved lines)
+    const drawLongitude = (offsetX, curveIntensity) => {
+        const steps = 15;
+        const startY = centerY - radius * 0.9;
+        const endY = centerY + radius * 0.9;
+        
+        for (let i = 0; i < steps - 1; i++) {
+            const t1 = i / (steps - 1);
+            const t2 = (i + 1) / (steps - 1);
+            
+            const y1 = startY + (endY - startY) * t1;
+            const y2 = startY + (endY - startY) * t2;
+            
+            // Calculate curve using sine function for moderate curve
+            const curve1 = Math.sin(t1 * Math.PI) * curveIntensity * 1.8;
+            const curve2 = Math.sin(t2 * Math.PI) * curveIntensity * 1.8;
+            
+            const x1 = centerX + offsetX + curve1;
+            const x2 = centerX + offsetX + curve2;
+            
+            doc.line(x1, y1, x2, y2);
+        }
+    };
+    
+    // Draw 3 longitude lines
+    drawLongitude(0, 0); 
+    drawLongitude(-radius * 0.4, -radius * 0.18); 
+    drawLongitude(radius * 0.4, radius * 0.18);   
+};
 
-    y += 8;
-    doc.setTextColor(...theme.text);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, leftMargin, y);
 
-    renderSection("Business Overview", reportData.businessoverview || "No overview provided.");
-    renderSection("Social Media Scores", [
-      `Instagram: ${reportData.instagramScore || "N/A"}%`,
-      `Facebook: ${reportData.facebookScore || "N/A"}%`,
-      `Overall Score: ${reportData.overallScore || "N/A"}%`
-    ]);
+// ## Social Media Cards
 
-    // Graphical representation of overall score (Horizontal Score Bar)
-    const overallScore = reportData.overallScore || 0;
-    const barX = leftMargin;
-    const barY = y + 20;
-    const barWidth = contentWidth;
-    const barHeight = 12;
+const cardWidth = 58;
+const cardHeight = 42;
+const cardSpacing = 4; 
+const shadowOffset = 1.5;
 
-    doc.setTextColor(...theme.primary);
-    doc.setFontSize(14);
-    y += 15;
-    doc.text("Overall Score", leftMargin, y);
+const totalWidth = (cardWidth * 3) + (cardSpacing * 2);
+const startX = (pageWidth - totalWidth) / 2;
 
-    doc.setFillColor(...theme.border);
-    doc.roundedRect(barX, barY, barWidth, barHeight, 3, 3, "F");
+const iconBaseY = y + 6;
+const headingBaseY = y + 25;
+const scoreBaseY = y + 35;
 
-    const filledWidth = (overallScore / 100) * barWidth;
-    doc.setFillColor(...theme.secondary);
-    doc.roundedRect(barX, barY, filledWidth, barHeight, 3, 3, "F");
+const cardColor = { r: 14, g: 23, b: 47 };      
+const shadowColor = { r: 5, g: 15, b: 26 };     
+// ===== Instagram Card =====
+let cardX = startX;
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(...theme.text);
-    const scoreText = `${overallScore}%`;
-    const scoreTextWidth = doc.getTextWidth(scoreText);
-    const scoreTextX = barX + (barWidth / 2) - (scoreTextWidth / 2);
-    const scoreTextY = barY + barHeight - 3;
-    doc.text(scoreText, scoreTextX, scoreTextY);
+// Shadow
+doc.setFillColor(shadowColor.r, shadowColor.g, shadowColor.b);
+doc.roundedRect(
+  cardX + shadowOffset,
+  y + shadowOffset,
+  cardWidth,
+  cardHeight,
+  4,
+  4,
+  "F"
+);
 
-    y = barY + barHeight + 15;
+// Card
+doc.setFillColor(cardColor.r, cardColor.g, cardColor.b);
+doc.roundedRect(cardX, y, cardWidth, cardHeight, 4, 4, "F");
 
-    renderSection("Insights", reportData.insights?.length ? reportData.insights : ["No insights provided."], true);
-    renderSection("Tips", reportData.tips?.length ? reportData.tips : ["No tips provided."], true);
+drawInstagramIcon(cardX + 25, iconBaseY, 10);
 
-    checkPageSpace(2);
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(10);
-    doc.setTextColor(...theme.footer);
-    doc.line(pageWidth / 3, pageHeight - 17, pageWidth * 2 / 3, pageHeight - 17);
-    doc.text("Powered by Universal Auditor AI | Delivered by Createlo", pageWidth / 2, pageHeight - 10, {
-      align: "center",
-    });
+doc.setFont("helvetica", "bold");
+doc.setFontSize(12);
+doc.setTextColor(225, 48, 108);
+doc.text("INSTAGRAM", cardX + 29, headingBaseY, { align: "center" });
 
-    doc.save("Audit_Report.pdf");
+doc.setFontSize(14);
+doc.setFont("helvetica", "normal");
+doc.setTextColor(...colors.content);
+doc.text(`Score: ${reportData.instagramScore}%`, cardX + 29, scoreBaseY, { align: "center" });
+
+
+// ===== Facebook Card =====
+cardX += cardWidth + cardSpacing;
+
+// Shadow
+doc.setFillColor(shadowColor.r, shadowColor.g, shadowColor.b);
+doc.roundedRect(
+  cardX + shadowOffset,
+  y + shadowOffset,
+  cardWidth,
+  cardHeight,
+  4,
+  4,
+  "F"
+);
+
+// Card
+doc.setFillColor(cardColor.r, cardColor.g, cardColor.b);
+doc.roundedRect(cardX, y, cardWidth, cardHeight, 4, 4, "F");
+
+drawFacebookIcon(cardX + 25, iconBaseY + 1, 10);
+
+doc.setFont("helvetica", "bold");
+doc.setFontSize(12);
+doc.setTextColor(...colors.facebookBlue);
+doc.text("FACEBOOK", cardX + 29, headingBaseY, { align: "center" });
+
+doc.setFontSize(14);
+doc.setFont("helvetica", "normal");
+doc.setTextColor(...colors.content);
+doc.text(`Score: ${reportData.facebookScore}%`, cardX + 29, scoreBaseY, { align: "center" });
+
+
+// ===== Website Card =====
+cardX += cardWidth + cardSpacing;
+
+// Shadow
+doc.setFillColor(shadowColor.r, shadowColor.g, shadowColor.b);
+doc.roundedRect(
+  cardX + shadowOffset,
+  y + shadowOffset,
+  cardWidth,
+  cardHeight,
+  4,
+  4,
+  "F"
+);
+
+// Card
+doc.setFillColor(cardColor.r, cardColor.g, cardColor.b);
+doc.roundedRect(cardX, y, cardWidth, cardHeight, 4, 4, "F");
+
+drawWebsiteIcon(cardX + 25, iconBaseY, 10);
+
+doc.setFont("helvetica", "bold");
+doc.setFontSize(12);
+doc.setTextColor(...colors.websiteGreen);
+doc.text("WEBSITE", cardX + 29, headingBaseY, { align: "center" });
+
+doc.setFontSize(14);
+doc.setFont("helvetica", "normal");
+doc.setTextColor(...colors.content);
+doc.text(`Score: ${reportData.websiteScore}%`, cardX + 29, scoreBaseY, { align: "center" });
+
+
+// ========== PAGE 2: SUMMARY, INSIGHTS, TIPS ==========
+const drawSecondPage = (doc, colors, reportData, pageWidth, pageHeight) => {
+  const margin = 7; // ~7px ≈ 1.85mm
+  const usableWidth = pageWidth - margin * 2;
+  const usableHeight = pageHeight - margin * 2;
+  const centerX = pageWidth / 2;
+  let y = margin + 10;
+
+  doc.addPage();
+   doc.setFillColor(5, 15, 26); // #050f1a
+  doc.rect(0, 0, pageWidth, pageHeight, "F");
+
+  // === Background container with margin ===
+  doc.setFillColor(12, 19, 35); // #0c1323
+  doc.rect(margin, margin, usableWidth, usableHeight, "F");
+
+  // === Icons ===
+ const drawSummaryIcon = (x, y, size) => {
+  const lineHeight = size * 0.25;
+  const dotRadius = size * 0.08;
+  const lineLength = size * 0.6;
+
+  doc.setDrawColor(...colors.heading);
+  doc.setLineWidth(0.8);
+
+  for (let i = 0; i < 3; i++) {
+    const yOffset = y + i * lineHeight;
+
+    // Draw circle (O)
+    doc.circle(x + dotRadius, yOffset + dotRadius, dotRadius, "S");
+
+    // Draw horizontal line (---)
+    const lineXStart = x + dotRadius * 2 + 1;
+    const lineY = yOffset + dotRadius;
+    doc.line(lineXStart, lineY, lineXStart + lineLength, lineY);
+  }
+};
+
+  const drawInsightIcon = (x, y, size) => {
+    const centerX = x + size * 0.4;
+    const centerY = y + size * 0.4;
+    const radius = size * 0.28;
+    doc.setLineWidth(0.8);
+    doc.setDrawColor(...colors.heading);
+    doc.circle(centerX, centerY, radius, "S");
+    const handleStartX = centerX + radius * 0.7;
+    const handleStartY = centerY + radius * 0.7;
+    doc.setLineWidth(1);
+    doc.line(handleStartX, handleStartY, x + size * 0.85, y + size * 0.85);
   };
 
+const drawTipIcon = (x, y, size) => {
+  const centerX = x + size / 2;
+  const bulbCenterY = y + size * 0.3;
+  const bulbRadius = size * 0.2;
+  const neckWidth = size * 0.15;
+  const neckHeight = size * 0.12;
+  const baseHeight = size * 0.18;
 
+  // Set color and stroke style
+  doc.setLineWidth(0.8);
+  doc.setDrawColor(...colors.heading);
+
+  // Bulb (circle)
+  doc.circle(centerX, bulbCenterY, bulbRadius, "S");
+
+  // Neck (rectangle below the bulb)
+  const neckX = centerX - neckWidth / 2;
+  const neckY = bulbCenterY + bulbRadius;
+  doc.roundedRect(neckX, neckY, neckWidth, neckHeight, 0.8, 0.8, "S");
+
+  // Base (3 screw lines)
+  const baseY = neckY + neckHeight;
+  const screwSpacing = baseHeight / 3;
+  for (let i = 0; i < 3; i++) {
+    const lineY = baseY + i * screwSpacing;
+    doc.line(centerX - neckWidth / 2, lineY, centerX + neckWidth / 2, lineY);
+  }
+
+  // Light rays around bulb
+  const rayLength = size * 0.12;
+  const rayOffset = bulbRadius + 1;
+  const angles = [0, 60, 120, 180, 240, 300]; 
+  doc.setLineWidth(0.6);
+  angles.forEach(angle => {
+    const rad = (angle * Math.PI) / 180;
+    const startX = centerX + Math.cos(rad) * rayOffset;
+    const startY = bulbCenterY + Math.sin(rad) * rayOffset;
+    const endX = centerX + Math.cos(rad) * (rayOffset + rayLength);
+    const endY = bulbCenterY + Math.sin(rad) * (rayOffset + rayLength);
+    doc.line(startX, startY, endX, endY);
+  });
+};
+
+  const drawSectionHeader = (title, yPos, iconType) => {
+    const iconX = margin + 5;
+    const iconY = yPos + 2;
+    const iconSize = 8;
+
+    if (iconType === 'summary') drawSummaryIcon(iconX, iconY, iconSize);
+    if (iconType === 'insights') drawInsightIcon(iconX, iconY, iconSize);
+    if (iconType === 'tips') drawTipIcon(iconX, iconY, iconSize);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(...colors.heading);
+    doc.text(title, margin + 16, yPos + 8);
+
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(...colors.border);
+    doc.line(margin + 5, yPos + 14, pageWidth - margin - 5, yPos + 14);
+
+    return yPos + 22;
+  };
+
+ const drawBulletPoints = (points, startY, maxPoints = null) => {
+  let currentY = startY;
+  const pointsToShow = maxPoints ? points.slice(0, maxPoints) : points;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+
+  pointsToShow.forEach((point) => {
+    doc.setFillColor(...colors.content);
+    doc.circle(margin + 10, currentY - 1.5, 1, "F");
+
+    doc.setTextColor(...colors.content);
+    const wrappedText = doc.splitTextToSize(point, usableWidth - 20);
+    doc.text(wrappedText, margin + 16, currentY);
+
+    const lineHeight = 4.5;
+    const additionalSpacing = 3;
+    currentY += (wrappedText.length * lineHeight) + additionalSpacing;
+  });
+
+  return currentY;
+};
+
+// New function to draw paragraph text with line breaks after full stops
+const drawParagraphText = (text, startY) => {
+  let currentY = startY;
+  
+  if (!text) return currentY;
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(...colors.content);
+  
+  // Split text by full stops and process each sentence
+  const sentences = text
+    .split('.')
+    .map(sentence => sentence.trim())
+    .filter(sentence => sentence.length > 0)
+    .map(sentence => sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.');
+  
+  sentences.forEach((sentence, index) => {
+    // Wrap text to fit within the page width
+    const wrappedText = doc.splitTextToSize(sentence, usableWidth);
+    
+    // Draw the sentence
+    doc.text(wrappedText, margin, currentY);
+    
+    // Calculate the height used by this sentence
+    const lineHeight = 4.5;
+    const sentenceHeight = wrappedText.length * lineHeight;
+    
+    // Add spacing between sentences 
+    const additionalSpacing = index < sentences.length - 1 ? 6 : 0; 
+    currentY += sentenceHeight + additionalSpacing;
+  });
+  
+  return currentY;
+};
+
+// Helper function to convert large paragraph into exactly 3 bullet points
+const convertToThreeBulletPoints = (text) => {
+  if (!text) return [];
+  
+  // Split by full stops first
+  const sentences = text
+    .split('.')
+    .map(sentence => sentence.trim())
+    .filter(sentence => sentence.length > 5); // Remove very short fragments
+  
+  if (sentences.length <= 3) {
+    // If 3 or fewer sentences, use them as is
+    return sentences.map(sentence => {
+      let cleaned = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+      if (!cleaned.match(/[.!?]$/)) {
+        cleaned += '.';
+      }
+      return cleaned;
+    });
+  } else {
+    // If more than 3 sentences, group them into 3 bullet points
+    const pointsPerBullet = Math.ceil(sentences.length / 3);
+    const bulletPoints = [];
+    
+    for (let i = 0; i < 3; i++) {
+      const startIndex = i * pointsPerBullet;
+      const endIndex = Math.min(startIndex + pointsPerBullet, sentences.length);
+      const combinedSentences = sentences.slice(startIndex, endIndex);
+      
+      if (combinedSentences.length > 0) {
+        let bulletText = combinedSentences.join('. ');
+        bulletText = bulletText.charAt(0).toUpperCase() + bulletText.slice(1);
+        if (!bulletText.match(/[.!?]$/)) {
+          bulletText += '.';
+        }
+        bulletPoints.push(bulletText);
+      }
+    }
+    
+    return bulletPoints;
+  }
+};
+
+// Enhanced function to handle different data formats with focus on paragraphs
+const processBulletData = (data, forceThreePoints = false) => {
+  if (Array.isArray(data)) {
+    return data; 
+  }
+  
+  if (typeof data === 'string') {
+
+    if (forceThreePoints) {
+      return convertToThreeBulletPoints(data);
+    }
+    
+  
+    if (data.includes('.')) {
+      return data
+        .split('.')
+        .map(sentence => sentence.trim())
+        .filter(sentence => sentence.length > 5)
+        .map(sentence => {
+          let cleaned = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+          if (!cleaned.match(/[.!?]$/)) {
+            cleaned += '.';
+          }
+          return cleaned;
+        });
+    } else if (data.includes('\n')) {
+      return data.split('\n').map(point => point.trim()).filter(point => point);
+    } else if (data.includes(';')) {
+      return data.split(';').map(point => point.trim()).filter(point => point);
+    } else if (data.includes('|')) {
+      return data.split('|').map(point => point.trim()).filter(point => point);
+    } else {
+      return [data]; 
+    }
+  }
+  
+  return [];
+};
+
+// === SUMMARY Section ===
+y = drawSectionHeader("BUSINESS SUMMARY", y, "summary");
+
+// Convert large paragraph to exactly 3 bullet points
+const summaryPoints = processBulletData(reportData.businesssummary, true); // true = force 3 points
+y = drawBulletPoints(summaryPoints, y) + 15;
+
+// === INSIGHTS Section ===
+y = drawSectionHeader("KEY INSIGHTS", y, "insights");
+
+const insightPoints = processBulletData(reportData.insights);
+y = drawBulletPoints(insightPoints, y, 5) + 15;
+
+// === TIPS Section ===
+y = drawSectionHeader("ACTIONABLE TIPS", y, "tips");
+
+const tipPoints = processBulletData(reportData.tips);
+y = drawBulletPoints(tipPoints, y, 6);
+
+const drawAllSectionsAsParagraphs = () => {
+  // === SUMMARY Section ===
+  y = drawSectionHeader("BUSINESS SUMMARY", y, "summary");
+  y = drawParagraphText(reportData.businesssummary, y) + 15;
+
+  // === INSIGHTS Section ===
+  y = drawSectionHeader("KEY INSIGHTS", y, "insights");
+  y = drawParagraphText(reportData.insights, y) + 15;
+
+  // === TIPS Section ===
+  y = drawSectionHeader("ACTIONABLE TIPS", y, "tips");
+  y = drawParagraphText(reportData.tips, y);
+};
+
+// Advanced processing for complex data
+const advancedProcessBulletData = (data, options = {}) => {
+  const {
+    maxLength = 100, 
+    minLength = 10,  
+    customDelimiter = null,
+    removeNumbers = false,
+    removeBullets = true
+  } = options;
+
+  if (Array.isArray(data)) {
+    return data.map(point => cleanBulletPoint(point, options));
+  }
+  
+  if (typeof data === 'string') {
+    let delimiter = customDelimiter;
+    
+    if (!delimiter) {
+      // Auto-detect delimiter
+      const delimiters = ['\n', '.', ';', '|', '•', '-', '*'];
+      delimiter = delimiters.find(d => data.split(d).length > 1) || '.';
+    }
+    
+    return data
+      .split(delimiter)
+      .map(point => cleanBulletPoint(point, options))
+      .filter(point => point.length >= minLength && point.length <= maxLength);
+  }
+  
+  return [];
+};
+
+const cleanBulletPoint = (point, options = {}) => {
+  const { removeNumbers = false, removeBullets = true } = options;
+  
+  let cleaned = point.trim();
+  
+  // Remove bullet characters
+  if (removeBullets) {
+    cleaned = cleaned.replace(/^[•\-\*]\s*/, '');
+  }
+  
+  // Remove numbering
+  if (removeNumbers) {
+    cleaned = cleaned.replace(/^\d+[\.\)]\s*/, '');
+  }
+  
+  // Capitalize first letter
+  if (cleaned.length > 0) {
+    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+  }
+  
+  // Ensure it ends with proper punctuation
+  if (cleaned && !cleaned.match(/[.!?]$/)) {
+    cleaned += '.';
+  }
+  
+  return cleaned;
+};
+
+  // === Footer ===
+  const footerY = pageHeight - margin - 10;
+  doc.setLineWidth(0.5);
+  doc.setDrawColor(255, 255, 255);
+  doc.line(margin + 5, footerY - 8, pageWidth - margin - 5, footerY - 8);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(...colors.heading);
+  doc.text("POWERED BY CREATELO | AUDITED VIA UNIVERSAL AUDITOR AI", centerX, footerY, { align: "center" });
+;
+};
+drawSecondPage(doc, colors, reportData, pageWidth, pageHeight);
+
+doc.save("Auditor_Report_Visual.pdf");
+};
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
