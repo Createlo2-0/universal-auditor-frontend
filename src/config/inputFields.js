@@ -101,27 +101,27 @@ const inputFields = [
       },
     },
   },
-  {
-    name: "businessCategory",
-    placeholder: "Select Business Category",
-    icon:MdCategory,
-    type: "select",
-    options: [
-      "Real Estate & Builders",
-      "Local Shops & D2C Brands",
-      "Healthcare & Clinics",
-      "Education & Coaching Institutes",
-      "Salons & Spas",
-      "Restaurants, Cafes & Cloud Kitchens",
-      "Jewellery & Fashion Boutiques",
-      "Fitness, Gyms & Yoga Studios",
-      "Event Planners & Wedding Vendors",
-      "Interior Designers & Architects",
-    ],
-    validation: {
-      required: "Business category is required",
-    },
-  },
+  // {
+  //   name: "businessCategory",
+  //   placeholder: "Select Business Category",
+  //   icon:MdCategory,
+  //   type: "select",
+  //   options: [
+  //     "Real Estate & Builders",
+  //     "Local Shops & D2C Brands",
+  //     "Healthcare & Clinics",
+  //     "Education & Coaching Institutes",
+  //     "Salons & Spas",
+  //     "Restaurants, Cafes & Cloud Kitchens",
+  //     "Jewellery & Fashion Boutiques",
+  //     "Fitness, Gyms & Yoga Studios",
+  //     "Event Planners & Wedding Vendors",
+  //     "Interior Designers & Architects",
+  //   ],
+  //   validation: {
+  //     required: "Business category is required",
+  //   },
+  // },
 ];
 
 // Exporting the input fields configuration

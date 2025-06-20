@@ -164,7 +164,6 @@ const BusinessSummary = () => {
     doc.save("Audit_Report.pdf");
   };
 
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -262,6 +261,7 @@ const BusinessSummary = () => {
             {[
               { platform: "Instagram", score: reportData.instagramScore, color: "#b32cc7" },
               { platform: "Facebook", score: reportData.facebookScore, color: "#5ad1f3" },
+              { platform: "Business", score: reportData.websiteScore, color: "#34d399" },
             ].map((item, index) => (
               <motion.div
                 key={index}
